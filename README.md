@@ -4,7 +4,6 @@ This is a simple Task Manager backend application built using Node.js and Expres
 It allows users to perform basic CRUD operations (Create, Read, Update, Delete) on tasks using in-memory storage.
 
 ##  Features
-
 * Create new tasks
 * View all tasks
 * View a specific task by ID
@@ -30,7 +29,6 @@ http://localhost:3000
 ```
 
 ##  API Endpoints
-
 ###  Get all tasks
 
 ```
@@ -76,12 +74,11 @@ DELETE /tasks/:id
 ```
 
 ##  Important Notes
-
 * This project uses in-memory storage, so all data will be lost when the server restarts.
 * No database is used in this version.
 
 
-## 📌 Future Improvements
+## Future Improvements
 
 * Connect to a real database (MySQL / MongoDB)
 * Add user authentication
