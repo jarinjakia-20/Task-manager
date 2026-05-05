@@ -9,8 +9,8 @@ const TASK_STATES = ["To Do", "In Progress", "Completed"];
 let taskList = [
   {
     id: 1,
-    title: "Go to SUST",
-    description: "Exam purpose",
+    title: "Finish API development",
+    description: "learning purpose",
     status: "To Do",
     createdAt: new Date().toISOString(),
   },
@@ -104,7 +104,7 @@ server.post("/tasks", (req, res) => {
     return res.status(400).json({ errors });
   }
 
-  const task = {
+  const newTask = {
     id: idCount++,
     title: req.body.title.trim(),
     description: req.body.description?.trim() || "",
@@ -112,10 +112,24 @@ server.post("/tasks", (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  taskList.push(task);
+  taskList.push(newTask);
 
-  res.status(201).json(task);
+  res.status(201).json(newTask);
 });
+
+server.put("/tasks/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = taskList.findIndex((t) => t.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  const errors = validateTask(req.body);
+
+  if (errors.length) {
+    return res.status(400).json({ errors });
+  }
 
 server.patch("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
@@ -125,20 +139,22 @@ server.patch("/tasks/:id", (req, res) => {
     return res.status(404).json({ error: "Task not found" });
   }
 
-  const errors = validateTask(req.body, true);
-
-  if (errors.length) {
-    return res.status(400).json({ errors });
+  if (!req.body.status) {
+    return res.status(400).json({ error: "Status is required for PATCH" });
   }
 
-  const current = taskList[index];
+  if (!TASK_STATES.includes(req.body.status)) {
+    return res.status(400).json({ error: `Status must be one of: ${TASK_STATES.join(", ")}` });
+  }
 
-  taskList[index] = {
-    ...current,
-    ...req.body,
-    updatedAt: new Date().toISOString(),
-  };
+  taskList[index].status = req.body.status;
+  taskList[index].updatedAt = new Date().toISOString();
+  res.json(taskList[index]);
+});
 
+  taskList[index].title = req.body.title.trim();
+  taskList[index].description = req.body.description?.trim() || "";
+  taskList[index].status = req.body.status || taskList[index].status;
   res.json(taskList[index]);
 });
 
@@ -150,15 +166,12 @@ server.delete("/tasks/:id", (req, res) => {
     return res.status(404).json({ error: "Task not found" });
   }
 
-  const removed = taskList.splice(index, 1);
-
-  res.json({
-    message: "Deleted successfully",
-    data: removed[0],
-  });
+const [removedTask] = taskList.splice(index, 1);
+  res.json({ message: "Task deleted successfully", task: removedTask });
 });
 
 const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
